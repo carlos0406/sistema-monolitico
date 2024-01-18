@@ -17,7 +17,7 @@ export default class GenerateInvoiceUseCase implements UseCaseInterface {
       name: input.name,
       document: input.document,
       address: new Address(
-        input.street,
+         input.street,
          input.number,
          input.complement,
          input.city,

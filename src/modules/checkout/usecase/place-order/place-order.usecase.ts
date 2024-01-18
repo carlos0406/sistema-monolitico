@@ -1,4 +1,5 @@
 
+import Address from "../../../@shared/domain/value-object/address";
 import Id from "../../../@shared/domain/value-object/id.value-object";
 import UseCaseInterface from "../../../@shared/usecase/use-case.interface";
 import ClientAdmFacadeInterface from "../../../client-adm/facade/client-adm.facade.interface";
@@ -37,6 +38,7 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
   }
 
   async execute(input: PlaceOrderInputDto): Promise<PlaceOrderOutputDto> {
+    console.log(input)
     const client = await this._clientFacade.find({ id: input.clientId });
     if (!client) {
       throw new Error("Client not found");
@@ -47,11 +49,20 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
       input.products.map((p) => this.getProduct(p.productId))
     );
 
+    console.log(products)
+    
     const myClient = new Client({
       id: new Id(client.id),
       name: client.name,
       email: client.email,
-      address: client.street,
+      address: new Address(
+        client?.address?._street,
+        client?.address?._number,
+        client?.address?._complement,
+        client?.address?._city,
+        client?.address?._state,
+        client?.address?._zipCode
+      ),
     });
 
     const order = new Order({
@@ -63,18 +74,18 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
       orderId: order.id.id,
       amount: order.total,
     });
-
+    
     const invoice =
       payment.status === "approved"
         ? await this._invoiceFacade.create({
             name: client.name,
             document: client.document,
-            street: client.street,
-            complement: client.complement,
-            number: client.number,
-            city: client.city,
-            state: client.state,
-            zipCode: client.zipCode,
+            street: client.address?._street,
+            complement: client.address?._complement,
+            number: client.address?._number,
+            city: client.address?._city,
+            state: client.address?._state,
+            zipCode: client.address?._zipCode,
             items: products.map((p) => {
               return {
                 id: p.id.id,
@@ -84,9 +95,8 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
             }),
           })
         : null;
-
     payment.status === "approved" && order.approved();
-    this._repository.addOrder(order);
+    await this._repository.addOrder(order);
 
     return {
       id: order.id.id,
