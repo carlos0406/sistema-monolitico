@@ -77,9 +77,6 @@ describe("Client Repository test", () => {
       salesPrice: product.salesPrice
     })
    
-    // console.log("db")
-    // console.log(productDb)
-    // console.log(clientDB)
 
     const order = new Order({
       id: new Id("1"),

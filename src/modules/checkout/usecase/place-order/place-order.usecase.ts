@@ -38,7 +38,6 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
   }
 
   async execute(input: PlaceOrderInputDto): Promise<PlaceOrderOutputDto> {
-    console.log(input)
     const client = await this._clientFacade.find({ id: input.clientId });
     if (!client) {
       throw new Error("Client not found");
@@ -49,8 +48,7 @@ export default class PlaceOrderUseCase implements UseCaseInterface {
       input.products.map((p) => this.getProduct(p.productId))
     );
 
-    console.log(products)
-    
+
     const myClient = new Client({
       id: new Id(client.id),
       name: client.name,

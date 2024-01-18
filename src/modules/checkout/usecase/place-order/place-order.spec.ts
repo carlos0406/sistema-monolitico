@@ -54,7 +54,7 @@ describe("place order usecase unit test",()=>{
 
   describe("test getProduct method", () =>{
     beforeAll(() =>{
-      jest.setSystemTime(mockDate)
+      jest.useFakeTimers()
     })
     afterAll(()=>{
       jest.useRealTimers()
